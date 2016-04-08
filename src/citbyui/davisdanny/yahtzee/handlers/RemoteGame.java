@@ -7,6 +7,7 @@ import org.quickconnectfamily.json.JSONInputStream;
 import org.quickconnectfamily.json.JSONOutputStream;
 
 import citbyui.davisdanny.yahtzee.main.View;
+import citbyui.davisdanny.yahtzee.models.LocalPlayer;
 import citbyui.davisdanny.yahtzee.util.MessageBean;
 import citbyui.davisdanny.yahtzee.util.MessageBean.Message;
 
@@ -37,6 +38,8 @@ public class RemoteGame  implements Handler{
 		MessageBean inBean = new MessageBean(inMap);
 		if(inBean.getMessage()==Message.JOINCONFIRM){
 			view.display("Successfully joined game: "+inBean.getData());
+			LocalPlayer player = new LocalPlayer(name);
+			
 		}else{
 			view.display("Unable to join game.");
 		}

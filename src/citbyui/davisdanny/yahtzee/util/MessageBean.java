@@ -43,8 +43,9 @@ public class MessageBean implements Serializable{
 	}
 	
 	public Message parseMessage(HashMap map)throws BeanBuildException{
+		System.out.println(((HashMap) map.get("message")).get("value"));
 		for(Message message: Message.values()){
-			if( message.value == map.get("value")){
+			if( message.value.equals(((HashMap) map.get("message")).get("value"))){
 				return message;
 			}
 		}

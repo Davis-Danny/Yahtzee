@@ -26,6 +26,7 @@ public class WaitForPlayer {
 			View view = View.getView();
 			view.display("Waiting for player to join...");
 			Socket playerSocket = listeningSocket.accept();
+			System.out.println("New socket created:"+playerSocket.toString());
 			JSONInputStream inFromClient = new JSONInputStream(playerSocket.getInputStream());
 			JSONOutputStream outToClient = new JSONOutputStream(playerSocket.getOutputStream());
 			while (true) {
