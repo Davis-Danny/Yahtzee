@@ -26,7 +26,7 @@ public class Startup implements Handler {
 		controller.addHandler("Menu", new Menu(session));
 		controller.addHandler("close", new Close());
 		controller.addHandler("game", new GameController(session));
-		controller.addHandler("join", new RemoteGame());
+		controller.addHandler("join", new RemoteGame(session));
 
 		// Open main menu
 		try {

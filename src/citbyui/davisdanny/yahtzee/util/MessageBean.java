@@ -53,7 +53,8 @@ public class MessageBean implements Serializable{
 	}
 
 	public enum Message{
-		JOINREQUEST("Request to join"),JOINCONFIRM("Confirmed"),INVALIDMESSAGE("Message not valid");
+		JOINREQUEST("Request to join"),JOINCONFIRM("Confirmed"),INVALIDMESSAGE("Message not valid"),READY("Ready for messages")
+		,ROLLPROMPT("Will you roll?"),ROLLRESPONSE("Will I Roll?");
 		private String value;
 		
 		private Message(String value){
