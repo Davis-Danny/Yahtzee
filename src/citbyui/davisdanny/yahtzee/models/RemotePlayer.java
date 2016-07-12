@@ -93,6 +93,11 @@ public class RemotePlayer extends Player {
 	public void notify(String message) {
 		handler.sendBean(new MessageBean(Message.NOTIFICATION,message));
 	}
+
+	@Override
+	public void done() {
+		handler.sendBean(new MessageBean(Message.DONE));
+	}
 	
 	
 

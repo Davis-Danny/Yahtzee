@@ -62,10 +62,14 @@ public class LocalPlayer extends Player {
 			}
 		}
 	}
+	
+	public void done(){
+		view.display("Thanks for playing!");
+	}
 
 	@Override
 	public void notify(String message) {
-		view.display(message);
+		view.display(name+": "+message);
 	}
 	
 	

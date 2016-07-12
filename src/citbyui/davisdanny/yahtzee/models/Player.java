@@ -28,6 +28,8 @@ public abstract class Player {
 	
 	public abstract void notify(String message);
 	
+	public abstract void done();
+	
 	public ScoreCard getScore(){
 		return score;
 	}

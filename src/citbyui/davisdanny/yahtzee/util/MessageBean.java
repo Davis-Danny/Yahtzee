@@ -56,7 +56,7 @@ public class MessageBean implements Serializable{
 		JOINREQUEST("Request to join"),JOINCONFIRM("Confirmed"),INVALIDMESSAGE("Message not valid"),READY("Ready for messages")
 		,ROLLPROMPT("Will you roll?"),ROLLRESPONSE("Will I Roll?"),KEEPPROMPT("Which dice will you keep?")
 		,KEEPRESPONSE("I will keep these dice:"),CHOOSEPROMPT("Which score will you choose?"),CHOOSERESPONSE("This score.")
-		,NOTIFICATION("For your information:");
+		,NOTIFICATION("For your information:"),DONE("The game is over.");
 		private String value;
 		
 		private Message(String value){

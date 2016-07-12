@@ -11,7 +11,7 @@ public class Util {
 	}
 	
 	public static void debug(String message){
-		System.out.println("DEBUG: "+message);
+		//System.out.println("DEBUG: "+message);
 	}
 	
 	public static int[] diceFromString(String diceString){

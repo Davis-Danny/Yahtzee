@@ -16,7 +16,10 @@ public class Turn {
 		this.player = player;
 		ArrayList<Player> otherPlayersList = (ArrayList<Player>) game.getPlayers().clone();
 		otherPlayersList.remove(player);
-		otherPlayers = (Player[]) otherPlayersList.toArray();
+		otherPlayers = new Player[otherPlayersList.size()];
+		for(int i=0;i<otherPlayers.length;i++){
+			otherPlayers[i] = otherPlayersList.get(i);
+		}
 		dice = new int[]{0,0,0,0,0};
 		rng = new Random();
 	}
@@ -56,7 +59,7 @@ public class Turn {
 	public int[] roll(int[] dice){
 		for(int i=0;i<dice.length;i++){
 			if(dice[i]==0){
-				dice[i] = rng.nextInt(5)+1;
+				dice[i] = rng.nextInt(6)+1;
 			}
 		}
 		return dice;

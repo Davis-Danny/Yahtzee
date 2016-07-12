@@ -36,7 +36,7 @@ public class RemoteGame implements Handler {
 		if (parameters.length > 0) {
 			dest = parameters[0];
 		} else {
-			dest = "localhost";
+			dest = View.getView().prompt("What ip would you like to join?");
 		}
 		join(dest);
 	}
@@ -56,25 +56,17 @@ public class RemoteGame implements Handler {
 				ready();
 			} else {
 				view.display("Unable to join game.");
-				session.getController().handleRequest("menu main");
 			}
+			session.getController().handleRequest("menu main");
 
 		} catch (Exception e) {
-			// View.getView().display("Unable to join game.");
-			// try {
-			// session.getController().handleRequest("menu main");
-			// } catch (InvalidCommandException e1) {
 			e.printStackTrace();
-			// }
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void ready() {
 		while (true) {
-			// Util.debug("Ready loop");
-			// MessageBean inBean = exchangeBeans( new
-			// MessageBean(Message.READY));
 			MessageBean inBean = handler.waitForBean();
 			int dice[];
 			switch (inBean.getMessage()) {
@@ -96,7 +88,9 @@ public class RemoteGame implements Handler {
 					HashMap<String, Integer> choices = (HashMap<String, Integer>) map.get("choices");
 					String choice = local.chooseScore(choices, toIntArray(diceList));
 					handler.sendBean(new MessageBean(Message.CHOOSERESPONSE, choice));
-					local.getScore().addScore(choice, choices.get(choice));
+					Object longScore = choices.get(choice);
+					int score = (int) (long) longScore;
+					local.getScore().addScore(choice, score);
 				} catch (JSONException | ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -105,6 +99,8 @@ public class RemoteGame implements Handler {
 			case NOTIFICATION:
 				local.notify(inBean.getData());
 				break;
+			case DONE:
+				return;
 			default:
 				break;
 			}
@@ -114,7 +110,7 @@ public class RemoteGame implements Handler {
 	private int[] toIntArray(ArrayList<Long> list) {
 		int[] out = new int[list.size()];
 		for (int i = 0; i < out.length; i++) {
-			out[i] = (int)Math.toIntExact(list.get(i));
+			out[i] = (int) Math.toIntExact(list.get(i));
 		}
 		return out;
 	}

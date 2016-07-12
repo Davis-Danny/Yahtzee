@@ -108,7 +108,7 @@ public class View {
 		display("(1)Aces: "+bean.getScore("1"));
 		display("(2)Twos: "+bean.getScore("2"));
 		display("(3)Threes: "+bean.getScore("3"));
-		display("(4)Fours"+bean.getScore("4"));
+		display("(4)Fours: "+bean.getScore("4"));
 		display("(5)Fives: "+bean.getScore("5"));
 		display("(6)Sixes: "+bean.getScore("6"));
 		

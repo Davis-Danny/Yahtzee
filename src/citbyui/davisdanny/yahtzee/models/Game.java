@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import citbyui.davisdanny.yahtzee.main.SessionBean;
 import citbyui.davisdanny.yahtzee.main.View;
+import citbyui.davisdanny.yahtzee.util.InvalidCommandException;
 import citbyui.davisdanny.yahtzee.util.Util;
 import citbyui.davisdanny.yahtzee.util.WaitForPlayer;
 
@@ -26,13 +27,13 @@ public class Game {
 	private ArrayList<Player> setupPlayers() {
 		View view = session.getView();
 		ArrayList<Player> players = new ArrayList<Player>();
-		do{
+		do {
 			int type;
 			boolean repeat;
 			do {
 				repeat = false;
-				type = view.getInputInt(
-						"Where is the next player playing? This computer(1),or another computer(2)",1,2);
+				type = view.getInputInt("Where is the next player playing? This computer(1),or another computer(2)", 1,
+						2);
 				switch (type) {
 				case 1:
 					String name = view.prompt("What is their name?");
@@ -45,13 +46,13 @@ public class Game {
 					repeat = true;
 				}
 			} while (repeat);
-		}while(view.confirm("Would you like to add another player?"));
+		} while (view.confirm("Would you like to add another player?"));
 		return players;
 	}
 
 	public void nextTurn() {
 		Player player = players.get(nextPlayer);
-		Turn turn = new Turn(player,this);
+		Turn turn = new Turn(player, this);
 		turn.take();
 		nextPlayer++;
 		if (nextPlayer == players.size()) {
@@ -64,8 +65,37 @@ public class Game {
 		while (roundNum < 13) {
 			nextTurn();
 		}
+		end();
 		View.getView().display("Game is completed.");
 		Util.nyi("Game end logic");
+	}
+
+	private void end() {
+		notifyAll("All players have completed their turns!");
+		notifyAll("The final scores are:");
+		Player winner = players.get(0);
+		for (Player player : players) {
+			notifyAll(player.getName() + ": " + player.getScore().getTotalScore() + " points");
+			if (player.getScore().getTotalScore() > winner.getScore().getTotalScore()) {
+				winner = player;
+			}
+		}
+		notifyAll(winner.getName() + " has won, with a score of " + winner.getScore().getTotalScore() + " points.");
+		for(Player player:players){
+			player.done();
+		}
+		try {
+			session.getController().handleRequest("menu main");
+		} catch (InvalidCommandException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void notifyAll(String message) {
+		for (Player player : players) {
+			player.notify(message);
+		}
 	}
 
 	public String getName() {
