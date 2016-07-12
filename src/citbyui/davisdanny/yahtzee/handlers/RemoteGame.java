@@ -1,6 +1,5 @@
 package citbyui.davisdanny.yahtzee.handlers;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +13,7 @@ import org.quickconnectfamily.json.ParseException;
 import citbyui.davisdanny.yahtzee.main.SessionBean;
 import citbyui.davisdanny.yahtzee.main.View;
 import citbyui.davisdanny.yahtzee.models.LocalPlayer;
-import citbyui.davisdanny.yahtzee.util.BeanBuildException;
 import citbyui.davisdanny.yahtzee.util.BeanHandler;
-import citbyui.davisdanny.yahtzee.util.InvalidCommandException;
 import citbyui.davisdanny.yahtzee.util.MessageBean;
 import citbyui.davisdanny.yahtzee.util.MessageBean.Message;
 import citbyui.davisdanny.yahtzee.util.Util;
@@ -56,7 +53,6 @@ public class RemoteGame implements Handler {
 			MessageBean inBean = handler.exchangeBeans(bean);
 			if (inBean.getMessage() == Message.JOINCONFIRM) {
 				view.display("Successfully joined game: " + inBean.getData());
-				LocalPlayer player = new LocalPlayer(name);
 				ready();
 			} else {
 				view.display("Unable to join game.");
@@ -95,12 +91,7 @@ public class RemoteGame implements Handler {
 				break;
 			case CHOOSEPROMPT:
 				try {
-					HashMap map = (HashMap) JSONUtilities.parse(inBean.getData());
-					/*
-					 * HashMap<String, Integer> choices = (HashMap<String,
-					 * Integer>) JSONUtilities .parse(map.get("choices")); dice
-					 * = (int[]) JSONUtilities.parse(map.get("dice"));
-					 */
+					HashMap<String, Object> map = (HashMap<String, Object>) JSONUtilities.parse(inBean.getData());
 					ArrayList<Long> diceList = (ArrayList<Long>) map.get("dice");
 					HashMap<String, Integer> choices = (HashMap<String, Integer>) map.get("choices");
 					String choice = local.chooseScore(choices, toIntArray(diceList));
@@ -110,6 +101,9 @@ public class RemoteGame implements Handler {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				break;
+			case NOTIFICATION:
+				local.notify(inBean.getData());
 				break;
 			default:
 				break;

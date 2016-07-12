@@ -1,26 +1,29 @@
 package citbyui.davisdanny.yahtzee.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-
-import citbyui.davisdanny.yahtzee.main.View;
-import citbyui.davisdanny.yahtzee.util.Util;
 
 public class Turn {
 
 	Player player;
 	int[] dice;
 	Random rng;
+	Player[] otherPlayers;
 
-	public Turn(Player player) {
+	@SuppressWarnings("unchecked")
+	public Turn(Player player, Game game) {
 		this.player = player;
+		ArrayList<Player> otherPlayersList = (ArrayList<Player>) game.getPlayers().clone();
+		otherPlayersList.remove(player);
+		otherPlayers = (Player[]) otherPlayersList.toArray();
 		dice = new int[]{0,0,0,0,0};
 		rng = new Random();
 	}
 	
 	public void take(){
-		View.getView().display(player.getName()+"'s turn is beginning");
-		
+		player.notify("Your turn is beginning");
+		notifyOthers(player.getName()+"'s turn is beginning.");
 		int rolls = 1;
 		while(roll(rolls)){
 			rolls++;
@@ -45,6 +48,9 @@ public class Turn {
 		HashMap<String,Integer> scores = ScoreCard.scoreRoll(dice);
 		String choice = player.chooseScore(scores,dice);
 		player.getScore().addScore(choice, scores.get(choice));
+		notifyOthers(player.getName()+" has scored "+choice+" for "+scores.get(choice)+" points,");
+		notifyOthers("leaving them with "+player.getScore().getTotalScore()+" points total.");
+		player.notify("You now have "+player.getScore().getTotalScore()+" points.");
 	}
 	
 	public int[] roll(int[] dice){
@@ -54,6 +60,12 @@ public class Turn {
 			}
 		}
 		return dice;
+	}
+	
+	private void notifyOthers(String message){
+		for(Player target:otherPlayers){
+			target.notify(message);
+		}
 	}
 	
 }

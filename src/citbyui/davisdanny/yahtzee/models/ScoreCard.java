@@ -120,6 +120,14 @@ public class ScoreCard {
 		return false;
 	}
 
+	public int getTotalScore(){
+		int total = 0;
+		for(int score:scores.values()){
+			total += score;
+		}
+		return total;
+	}
+	
 	public Player getOwner() {
 		return owner;
 	}

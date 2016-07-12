@@ -1,6 +1,5 @@
 package citbyui.davisdanny.yahtzee.models;
 
-import java.net.Socket;
 import java.util.HashMap;
 
 import org.quickconnectfamily.json.JSONException;
@@ -61,16 +60,10 @@ public class RemotePlayer extends Player {
 	@Override
 	public String chooseScore(HashMap<String, Integer> choices, int[] dice) {
 
-		HashMap map = new HashMap();
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		try {
 			
-			//convert the choices and the dice to strings
-			/*String JSONChoices = JSONUtilities.stringify(choices);
-			String JSONDice = JSONUtilities.stringify(dice);
-			
-			//place those strings in a HashMap and convert it to a JSON string
-			map.put("choices", JSONChoices);
-			map.put("dice", JSONDice);*/
+			//put the choices and dice into a map and stringify it
 			map.put("choices", choices);
 			map.put("dice", dice);
 			String JSONMap = JSONUtilities.stringify(map);
@@ -94,6 +87,11 @@ public class RemotePlayer extends Player {
 		
 		//Util.nyi("RemotePlayer chooseScore logic");
 		return null;
+	}
+
+	@Override
+	public void notify(String message) {
+		handler.sendBean(new MessageBean(Message.NOTIFICATION,message));
 	}
 	
 	

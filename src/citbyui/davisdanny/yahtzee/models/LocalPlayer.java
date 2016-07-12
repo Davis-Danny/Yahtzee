@@ -14,7 +14,7 @@ public class LocalPlayer extends Player {
 	}
 
 	@Override
-	public boolean keepRolling(int[] dice) {
+	public synchronized boolean keepRolling(int[] dice) {
 		view.display("Here are your current dice:");
 		view.displayDice(dice);
 		int input = view.getInputInt("Would you like to score these dice(1), or reroll some(2)?", 1, 2);
@@ -26,7 +26,7 @@ public class LocalPlayer extends Player {
 	}
 
 	@Override
-	public int[] chooseDiceToKeep(int[] dice) {
+	public synchronized int[] chooseDiceToKeep(int[] dice) {
 		int input;
 		while (true) {
 			view.display("Here are your current dice:");
@@ -46,7 +46,7 @@ public class LocalPlayer extends Player {
 	}
 
 	@Override
-	public String chooseScore(HashMap<String, Integer> choices,int[] dice) {
+	public synchronized String chooseScore(HashMap<String, Integer> choices,int[] dice) {
 		view.display("Here are your current dice:");
 		view.displayDice(dice);
 		view.display(score, choices);
@@ -62,6 +62,12 @@ public class LocalPlayer extends Player {
 			}
 		}
 	}
+
+	@Override
+	public void notify(String message) {
+		view.display(message);
+	}
+	
 	
 
 }

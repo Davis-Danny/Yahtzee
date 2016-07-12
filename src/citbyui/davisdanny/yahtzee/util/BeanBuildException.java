@@ -2,6 +2,11 @@ package citbyui.davisdanny.yahtzee.util;
 
 public class BeanBuildException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4668379165600298311L;
+
 	public BeanBuildException() {
 		// TODO Auto-generated constructor stub
 	}

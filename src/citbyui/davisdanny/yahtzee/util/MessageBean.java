@@ -19,7 +19,7 @@ public class MessageBean implements Serializable{
 		setData(data);
 	}
 	
-	public MessageBean(HashMap map)throws BeanBuildException{
+	public MessageBean(HashMap<String, Object> map)throws BeanBuildException{
 			setMessage(parseMessage(map));
 			if(map.containsKey("data")){
 				setData((String) map.get("data"));
@@ -42,9 +42,10 @@ public class MessageBean implements Serializable{
 		this.data = data;
 	}
 	
-	public Message parseMessage(HashMap map)throws BeanBuildException{
+	@SuppressWarnings("unchecked")
+	public Message parseMessage(HashMap<String, Object> map)throws BeanBuildException{
 		for(Message message: Message.values()){
-			if( message.value.equals(((HashMap) map.get("message")).get("value"))){
+			if( message.value.equals(((HashMap<String, String>) map.get("message")).get("value"))){
 				return message;
 			}
 		}
@@ -54,7 +55,8 @@ public class MessageBean implements Serializable{
 	public enum Message{
 		JOINREQUEST("Request to join"),JOINCONFIRM("Confirmed"),INVALIDMESSAGE("Message not valid"),READY("Ready for messages")
 		,ROLLPROMPT("Will you roll?"),ROLLRESPONSE("Will I Roll?"),KEEPPROMPT("Which dice will you keep?")
-		,KEEPRESPONSE("I will keep these dice:"),CHOOSEPROMPT("Which score will you choose?"),CHOOSERESPONSE("This score.");
+		,KEEPRESPONSE("I will keep these dice:"),CHOOSEPROMPT("Which score will you choose?"),CHOOSERESPONSE("This score.")
+		,NOTIFICATION("For your information:");
 		private String value;
 		
 		private Message(String value){

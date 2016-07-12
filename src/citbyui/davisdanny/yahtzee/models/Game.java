@@ -51,7 +51,7 @@ public class Game {
 
 	public void nextTurn() {
 		Player player = players.get(nextPlayer);
-		Turn turn = new Turn(player);
+		Turn turn = new Turn(player,this);
 		turn.take();
 		nextPlayer++;
 		if (nextPlayer == players.size()) {

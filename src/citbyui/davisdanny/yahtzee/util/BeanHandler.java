@@ -28,9 +28,10 @@ public class BeanHandler {
 		return waitForBean();
 	}
 
+	@SuppressWarnings("unchecked")
 	public MessageBean waitForBean() {
 		try {
-			HashMap inMap = (HashMap) inStream.readObject();
+			HashMap<String, Object> inMap = (HashMap<String, Object>) inStream.readObject();
 			MessageBean bean = new MessageBean(inMap);
 			Util.debug("Recieved: " + bean.getMessage() + ": " + bean.getData());
 			return bean;

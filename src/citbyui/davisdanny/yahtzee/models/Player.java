@@ -26,6 +26,8 @@ public abstract class Player {
 	
 	public abstract String chooseScore(HashMap<String,Integer> choices,int[] dice);
 	
+	public abstract void notify(String message);
+	
 	public ScoreCard getScore(){
 		return score;
 	}
