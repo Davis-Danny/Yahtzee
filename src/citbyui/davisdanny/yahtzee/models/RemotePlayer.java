@@ -1,47 +1,34 @@
 package citbyui.davisdanny.yahtzee.models;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 
 import org.quickconnectfamily.json.JSONException;
-import org.quickconnectfamily.json.JSONInputStream;
-import org.quickconnectfamily.json.JSONOutputStream;
-import org.quickconnectfamily.json.ParseException;
-
-import citbyui.davisdanny.yahtzee.main.View;
-import citbyui.davisdanny.yahtzee.util.BeanBuildException;
+import org.quickconnectfamily.json.JSONUtilities;
+import citbyui.davisdanny.yahtzee.util.BeanHandler;
 import citbyui.davisdanny.yahtzee.util.MessageBean;
 import citbyui.davisdanny.yahtzee.util.MessageBean.Message;
 import citbyui.davisdanny.yahtzee.util.Util;
 
 public class RemotePlayer extends Player {
 	
-	Socket socket;
 	Boolean ready;
-	JSONInputStream inFromClient;
-	JSONOutputStream outToClient;
+	BeanHandler handler;
 	
 
-	public RemotePlayer(String name,Socket socket){
+	public RemotePlayer(String name,BeanHandler handler){
 		super(name);
-		this.socket = socket;
-		try {
-			inFromClient = new JSONInputStream(socket.getInputStream());
-			outToClient = new JSONOutputStream(socket.getOutputStream());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.handler = handler;
 		ready = true;
 	}
 
 	@Override
 	public boolean keepRolling(int[] dice) {
-		MessageBean bean = new MessageBean(Message.ROLLPROMPT,dice.toString());
-		MessageBean response = exchangeBeans(bean);
-		View view = View.getView();
+		//create a messageBean to ask if the remote player wants to roll and send it
+		MessageBean bean = new MessageBean(Message.ROLLPROMPT,Util.diceToString(dice));
+		MessageBean response = handler.exchangeBeans(bean);
+		
+		// return the response
 		if(response.getMessage()==Message.ROLLRESPONSE){
 			if(response.getData().equals("true")){
 				return true;
@@ -59,25 +46,56 @@ public class RemotePlayer extends Player {
 
 	@Override
 	public int[] chooseDiceToKeep(int[] dice) {
-		Util.nyi("RemotePlayer chooseDiceToKeep logic");
-		return null;
+		
+		//create and send a bean asking which dice the player will keep
+		MessageBean bean = new MessageBean(Message.KEEPPROMPT,Util.diceToString(dice));
+		MessageBean response = handler.exchangeBeans(bean);
+		if(response.getMessage()==Message.KEEPRESPONSE){
+			return Util.diceFromString(response.getData());
+		}else{
+			Util.error(Message.KEEPRESPONSE.toString(), response.getMessage().toString());
+			return null;
+		}
 	}
 
 	@Override
 	public String chooseScore(HashMap<String, Integer> choices, int[] dice) {
-		Util.nyi("RemotePlayer chooseScore logic");
+
+		HashMap map = new HashMap();
+		try {
+			
+			//convert the choices and the dice to strings
+			/*String JSONChoices = JSONUtilities.stringify(choices);
+			String JSONDice = JSONUtilities.stringify(dice);
+			
+			//place those strings in a HashMap and convert it to a JSON string
+			map.put("choices", JSONChoices);
+			map.put("dice", JSONDice);*/
+			map.put("choices", choices);
+			map.put("dice", dice);
+			String JSONMap = JSONUtilities.stringify(map);
+			
+			//create a MessageBean with the ChoosePrompte message and the stringified map
+			MessageBean bean = new MessageBean(Message.CHOOSEPROMPT, JSONMap);
+			
+			//send the MessageBean and get the response
+			MessageBean response = handler.exchangeBeans(bean);
+			
+			if(response.getMessage()==Message.CHOOSERESPONSE){
+				return response.getData();
+			}else{
+				Util.error(Message.KEEPRESPONSE.toString(), response.getMessage().toString());
+				return null;
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//Util.nyi("RemotePlayer chooseScore logic");
 		return null;
 	}
 	
-	private MessageBean exchangeBeans(MessageBean bean){
-		try {
-			outToClient.writeObject(bean);
-			HashMap inMap = (HashMap) inFromClient.readObject();
-			return new MessageBean(inMap);
-		} catch (JSONException | IOException | ParseException | BeanBuildException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+	
 
 }

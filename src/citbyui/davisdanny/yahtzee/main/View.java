@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import citbyui.davisdanny.yahtzee.models.ScoreCard;
+import citbyui.davisdanny.yahtzee.util.Util;
 
 public class View {
 

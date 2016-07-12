@@ -2,95 +2,126 @@ package citbyui.davisdanny.yahtzee.handlers;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.quickconnectfamily.json.JSONException;
 import org.quickconnectfamily.json.JSONInputStream;
 import org.quickconnectfamily.json.JSONOutputStream;
+import org.quickconnectfamily.json.JSONUtilities;
 import org.quickconnectfamily.json.ParseException;
 
 import citbyui.davisdanny.yahtzee.main.SessionBean;
 import citbyui.davisdanny.yahtzee.main.View;
 import citbyui.davisdanny.yahtzee.models.LocalPlayer;
 import citbyui.davisdanny.yahtzee.util.BeanBuildException;
+import citbyui.davisdanny.yahtzee.util.BeanHandler;
 import citbyui.davisdanny.yahtzee.util.InvalidCommandException;
 import citbyui.davisdanny.yahtzee.util.MessageBean;
 import citbyui.davisdanny.yahtzee.util.MessageBean.Message;
+import citbyui.davisdanny.yahtzee.util.Util;
 
-public class RemoteGame  implements Handler{
-	
+public class RemoteGame implements Handler {
+
 	SessionBean session;
 	JSONInputStream inFromServer;
 	JSONOutputStream outToServer;
+	BeanHandler handler;
 	LocalPlayer local;
 
-	public RemoteGame(SessionBean session){
+	public RemoteGame(SessionBean session) {
 		this.session = session;
 	}
 
 	@Override
 	public void handle(String[] parameters) {
 		String dest;
-		if(parameters.length>0){
+		if (parameters.length > 0) {
 			dest = parameters[0];
-		}else{
+		} else {
 			dest = "localhost";
 		}
 		join(dest);
 	}
-	
-	private MessageBean exchangeBeans(MessageBean bean){
+
+	private void join(String dest) {
 		try {
-			outToServer.writeObject(bean);
-			HashMap inMap = (HashMap) inFromServer.readObject();
-			return new MessageBean(inMap);
-		} catch (JSONException | IOException | ParseException | BeanBuildException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	private void join(String dest){
-		try{
-			Socket socket = new Socket(dest,9292);
-			inFromServer = new JSONInputStream(socket.getInputStream());
-			outToServer = new JSONOutputStream(socket.getOutputStream());
-			
+			Socket socket = new Socket(dest, 9292);
+			handler = new BeanHandler(socket);
+
 			View view = View.getView();
 			String name = view.prompt("What is your name?");
 			local = new LocalPlayer(name);
-			MessageBean bean = new MessageBean(Message.JOINREQUEST,name);
-			MessageBean inBean = exchangeBeans(bean);
-			if(inBean.getMessage()==Message.JOINCONFIRM){
-				view.display("Successfully joined game: "+inBean.getData());
+			MessageBean bean = new MessageBean(Message.JOINREQUEST, name);
+			MessageBean inBean = handler.exchangeBeans(bean);
+			if (inBean.getMessage() == Message.JOINCONFIRM) {
+				view.display("Successfully joined game: " + inBean.getData());
 				LocalPlayer player = new LocalPlayer(name);
 				ready();
-			}else{
+			} else {
 				view.display("Unable to join game.");
 				session.getController().handleRequest("menu main");
 			}
-			
-			}catch(Exception e){
-				View.getView().display("Unable to join game.");
-				try {
-					session.getController().handleRequest("menu main");
-				} catch (InvalidCommandException e1) {
-					e1.printStackTrace();
-				}
-			}
+
+		} catch (Exception e) {
+			// View.getView().display("Unable to join game.");
+			// try {
+			// session.getController().handleRequest("menu main");
+			// } catch (InvalidCommandException e1) {
+			e.printStackTrace();
+			// }
+		}
 	}
-	
-	private void ready(){
-		MessageBean inBean = exchangeBeans( new MessageBean(Message.READY));
-		switch(inBean.getMessage()){
+
+	@SuppressWarnings("unchecked")
+	private void ready() {
+		while (true) {
+			// Util.debug("Ready loop");
+			// MessageBean inBean = exchangeBeans( new
+			// MessageBean(Message.READY));
+			MessageBean inBean = handler.waitForBean();
+			int dice[];
+			switch (inBean.getMessage()) {
 			case ROLLPROMPT:
-				String data = inBean.getData();
-				Boolean response = View.getView().confirm(data);
-				exchangeBeans(new MessageBean(Message.ROLLRESPONSE,response.toString()));
+				dice = Util.diceFromString(inBean.getData());
+				Boolean response = local.keepRolling(dice);
+				handler.sendBean(new MessageBean(Message.ROLLRESPONSE, response.toString()));
+				break;
+			case KEEPPROMPT:
+				// Util.debug("got to KEEPPROMT");
+				dice = Util.diceFromString(inBean.getData());
+				int[] keepResponse = local.chooseDiceToKeep(dice);
+				handler.sendBean(new MessageBean(Message.KEEPRESPONSE, Util.diceToString(keepResponse)));
+				break;
+			case CHOOSEPROMPT:
+				try {
+					HashMap map = (HashMap) JSONUtilities.parse(inBean.getData());
+					/*
+					 * HashMap<String, Integer> choices = (HashMap<String,
+					 * Integer>) JSONUtilities .parse(map.get("choices")); dice
+					 * = (int[]) JSONUtilities.parse(map.get("dice"));
+					 */
+					ArrayList<Long> diceList = (ArrayList<Long>) map.get("dice");
+
+					String responseScore = local.chooseScore((HashMap<String, Integer>) map.get("choices"), toIntArray(diceList));
+					handler.sendBean(new MessageBean(Message.CHOOSERESPONSE, responseScore));
+				} catch (JSONException | ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 			default:
 				break;
+			}
 		}
+	}
+
+	private int[] toIntArray(ArrayList<Long> list) {
+		int[] out = new int[list.size()];
+		for (int i = 0; i < out.length; i++) {
+			out[i] = (int)Math.toIntExact(list.get(i));
+		}
+		return out;
 	}
 
 }

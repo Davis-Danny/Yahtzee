@@ -2,11 +2,6 @@ package citbyui.davisdanny.yahtzee.util;
 
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-
-import org.quickconnectfamily.json.JSONInputStream;
-import org.quickconnectfamily.json.JSONOutputStream;
-
 import citbyui.davisdanny.yahtzee.main.View;
 import citbyui.davisdanny.yahtzee.models.Game;
 import citbyui.davisdanny.yahtzee.models.RemotePlayer;
@@ -26,20 +21,12 @@ public class WaitForPlayer {
 			View view = View.getView();
 			view.display("Waiting for player to join...");
 			Socket playerSocket = listeningSocket.accept();
-			System.out.println("New socket created:"+playerSocket.toString());
-			JSONInputStream inFromClient = new JSONInputStream(playerSocket.getInputStream());
-			JSONOutputStream outToClient = new JSONOutputStream(playerSocket.getOutputStream());
+			BeanHandler handler = new BeanHandler(playerSocket);
 			while (true) {
-				HashMap inMap = (HashMap) inFromClient.readObject();
-				try{
-					MessageBean bean = new MessageBean(inMap);
+					MessageBean bean = handler.waitForBean();
 					System.out.println(bean.getData() + " has joined the game.");
-					outToClient.writeObject(new MessageBean(Message.JOINCONFIRM,game.getName()));
-					return new RemotePlayer(bean.getData(), playerSocket);
-				} catch(BeanBuildException e) {
-					System.out.println("Unknown map recieved: " + inMap);
-					outToClient.writeObject(new MessageBean(Message.INVALIDMESSAGE));
-				}
+					handler.sendBean(new MessageBean(Message.JOINCONFIRM,game.getName()));
+					return new RemotePlayer(bean.getData(), handler);
 			}
 
 		} catch (Exception e) {
@@ -57,21 +44,5 @@ public class WaitForPlayer {
 		}
 		setup = false;
 	}
-
-	/*
-	 * private class Listener implements Runnable{
-	 * 
-	 * 
-	 * 
-	 * public Listener(ServerSocket listeningSocket){
-	 * 
-	 * }
-	 * 
-	 * @Override public void run() { // TODO Auto-generated method stub
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
 
 }
