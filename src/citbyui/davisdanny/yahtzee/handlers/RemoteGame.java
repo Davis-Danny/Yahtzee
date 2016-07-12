@@ -102,9 +102,10 @@ public class RemoteGame implements Handler {
 					 * = (int[]) JSONUtilities.parse(map.get("dice"));
 					 */
 					ArrayList<Long> diceList = (ArrayList<Long>) map.get("dice");
-
-					String responseScore = local.chooseScore((HashMap<String, Integer>) map.get("choices"), toIntArray(diceList));
-					handler.sendBean(new MessageBean(Message.CHOOSERESPONSE, responseScore));
+					HashMap<String, Integer> choices = (HashMap<String, Integer>) map.get("choices");
+					String choice = local.chooseScore(choices, toIntArray(diceList));
+					handler.sendBean(new MessageBean(Message.CHOOSERESPONSE, choice));
+					local.getScore().addScore(choice, choices.get(choice));
 				} catch (JSONException | ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
