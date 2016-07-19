@@ -33,7 +33,7 @@ public class Game {
 			do {
 				repeat = false;
 				type = view.getInputInt("Where is the next player playing? This computer(1),or another computer(2)", 1,
-						2);
+						3);
 				switch (type) {
 				case 1:
 					String name = view.prompt("What is their name?");
@@ -41,6 +41,10 @@ public class Game {
 					break;
 				case 2:
 					players.add(WaitForPlayer.getRemoteConnection(this));
+				case 3:
+					name = view.prompt("What is their name?");
+					players.add(new DumbAIPlayer(name));
+					break;
 				default:
 					view.display("Please enter a valid number");
 					repeat = true;
